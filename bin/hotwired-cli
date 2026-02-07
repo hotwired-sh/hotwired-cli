@@ -1,0 +1,69 @@
+#!/usr/bin/env node
+
+const { execFileSync } = require("child_process");
+const path = require("path");
+const fs = require("fs");
+
+const PLATFORMS = {
+  "darwin-arm64": "@hotwired-sh/cli-darwin-arm64",
+  "darwin-x64": "@hotwired-sh/cli-darwin-x64",
+  "linux-x64": "@hotwired-sh/cli-linux-x64",
+  "linux-arm64": "@hotwired-sh/cli-linux-arm64",
+};
+
+function getBinaryPath() {
+  const platformKey = `${process.platform}-${process.arch}`;
+  const packageName = PLATFORMS[platformKey];
+
+  if (!packageName) {
+    console.error(`Unsupported platform: ${platformKey}`);
+    console.error(`Supported platforms: ${Object.keys(PLATFORMS).join(", ")}`);
+    process.exit(1);
+  }
+
+  const binaryName = process.platform === "win32" ? "hotwired-cli.exe" : "hotwired-cli";
+
+  // Paths to check, in order of priority
+  const paths = [
+    // Bundled in npm/ folder (primary - works with npx)
+    path.join(__dirname, "..", "npm", platformKey, "bin", binaryName),
+    // Optional dependency in node_modules
+    path.join(__dirname, "..", "node_modules", packageName, "bin", binaryName),
+  ];
+
+  for (const binPath of paths) {
+    try {
+      if (fs.existsSync(binPath)) {
+        return binPath;
+      }
+    } catch {}
+  }
+
+  // Try require.resolve as last resort
+  try {
+    const pkgPath = require.resolve(`${packageName}/package.json`);
+    const pkgDir = path.dirname(pkgPath);
+    const binPath = path.join(pkgDir, "bin", binaryName);
+    if (fs.existsSync(binPath)) {
+      return binPath;
+    }
+  } catch {}
+
+  console.error(`Could not find binary for platform: ${platformKey}`);
+  console.error(`Checked paths:`);
+  paths.forEach(p => console.error(`  - ${p}`));
+  process.exit(1);
+}
+
+const binaryPath = getBinaryPath();
+
+try {
+  execFileSync(binaryPath, process.argv.slice(2), {
+    stdio: "inherit",
+  });
+} catch (error) {
+  if (error.status !== null) {
+    process.exit(error.status);
+  }
+  throw error;
+}

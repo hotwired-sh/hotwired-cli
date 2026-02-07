@@ -1,0 +1,19 @@
+{
+  "name": "@hotwired-sh/cli-darwin-arm64",
+  "version": "0.1.0",
+  "description": "hotwired-cli binary for macOS ARM64",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hotwired-sh/hotwired-cli.git"
+  },
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "files": [
+    "bin/hotwired-cli"
+  ]
+}

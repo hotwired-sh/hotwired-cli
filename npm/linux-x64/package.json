@@ -1,0 +1,19 @@
+{
+  "name": "@hotwired-sh/cli-linux-x64",
+  "version": "0.1.0",
+  "description": "hotwired-cli binary for Linux x64",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hotwired-sh/hotwired-cli.git"
+  },
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "bin/hotwired-cli"
+  ]
+}
