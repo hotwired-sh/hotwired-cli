@@ -108,6 +108,10 @@ impl HotwiredClient {
         serde_json::from_str(&line).map_err(|e| IpcError::InvalidResponse(e.to_string()))
     }
 
+    pub fn socket_path(&self) -> &str {
+        &self.socket_path
+    }
+
     pub async fn health_check(&self) -> Result<SocketResponse, IpcError> {
         self.request("ping", serde_json::json!({})).await
     }
