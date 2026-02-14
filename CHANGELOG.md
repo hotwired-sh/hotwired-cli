@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/hotwired-sh/hotwired-cli/compare/v1.3.0...v1.3.1) (2026-02-14)
+
+
+### Bug Fixes
+
+* document comment ID abbreviation support ([35d12e3](https://github.com/hotwired-sh/hotwired-cli/commit/35d12e38f0ccc0ab30c01ef4898e95b0691de843))
+
 # [1.3.0](https://github.com/hotwired-sh/hotwired-cli/compare/v1.2.0...v1.3.0) (2026-02-14)
 
 
