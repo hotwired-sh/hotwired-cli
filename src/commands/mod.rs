@@ -4,12 +4,12 @@ pub mod session;
 pub mod validate;
 
 // Workflow commands
+pub mod complete;
 pub mod hotwire;
+pub mod impediment;
+pub mod inbox;
 pub mod pair;
 pub mod send;
-pub mod inbox;
-pub mod complete;
-pub mod impediment;
 pub mod status;
 
 // Artifact commands
@@ -86,6 +86,9 @@ mod tests {
 
     #[test]
     fn test_format_timestamp() {
-        assert_eq!(format_timestamp("2024-01-15T10:30:00Z"), "2024-01-15 10:30:00");
+        assert_eq!(
+            format_timestamp("2024-01-15T10:30:00Z"),
+            "2024-01-15 10:30:00"
+        );
     }
 }

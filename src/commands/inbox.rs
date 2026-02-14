@@ -3,8 +3,8 @@
 //! The `inbox` command retrieves recent messages from the conversation.
 //! Supports one-shot and continuous watch modes.
 
-use crate::ipc::HotwiredClient;
 use super::{format_timestamp, validate};
+use crate::ipc::HotwiredClient;
 
 pub async fn run(client: &HotwiredClient, watch: bool, since: Option<i64>) {
     // Validate session first
@@ -89,15 +89,26 @@ async fn fetch_messages(
 
 fn print_event(event: &serde_json::Value) {
     let source = event.get("source").and_then(|v| v.as_str()).unwrap_or("?");
-    let event_type = event.get("eventType").and_then(|v| v.as_str()).unwrap_or("message");
+    let event_type = event
+        .get("eventType")
+        .and_then(|v| v.as_str())
+        .unwrap_or("message");
     let content = event
         .get("content")
         .and_then(|v| v.as_str())
         .or_else(|| event.get("summary").and_then(|v| v.as_str()))
         .unwrap_or("");
-    let timestamp = event.get("timestamp").and_then(|v| v.as_str()).unwrap_or("");
+    let timestamp = event
+        .get("timestamp")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
 
-    println!("[{}] {}→{}", format_timestamp(timestamp), source, event_type);
+    println!(
+        "[{}] {}→{}",
+        format_timestamp(timestamp),
+        source,
+        event_type
+    );
     if !content.is_empty() {
         // Indent content for readability
         for line in content.lines() {

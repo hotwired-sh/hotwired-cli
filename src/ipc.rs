@@ -59,7 +59,9 @@ impl HotwiredClient {
 
     fn read_auth_token() -> Option<String> {
         let token_path = dirs::home_dir()?.join(".hotwired").join("auth_token");
-        std::fs::read_to_string(token_path).ok().map(|s| s.trim().to_string())
+        std::fs::read_to_string(token_path)
+            .ok()
+            .map(|s| s.trim().to_string())
     }
 
     pub async fn request(
@@ -82,8 +84,8 @@ impl HotwiredClient {
             token: self.auth_token.clone(),
         };
 
-        let request_json = serde_json::to_string(&request)
-            .map_err(|e| IpcError::RequestFailed(e.to_string()))?;
+        let request_json =
+            serde_json::to_string(&request).map_err(|e| IpcError::RequestFailed(e.to_string()))?;
 
         stream
             .write_all(request_json.as_bytes())

@@ -2,8 +2,8 @@
 //!
 //! The `impediment` command signals that you're stuck and need help.
 
-use crate::ipc::HotwiredClient;
 use super::{handle_error, validate};
+use crate::ipc::HotwiredClient;
 
 pub async fn run(
     client: &HotwiredClient,

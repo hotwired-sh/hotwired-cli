@@ -3,8 +3,8 @@
 //! The `pair` command attaches this terminal to an existing run. This is one of the
 //! few commands that does NOT require an existing session - it creates the attachment.
 
-use crate::ipc::HotwiredClient;
 use super::handle_error;
+use crate::ipc::HotwiredClient;
 
 pub async fn run(client: &HotwiredClient, run_id: &str, role: Option<&str>) {
     // pair does NOT require existing session - it creates the attachment

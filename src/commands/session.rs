@@ -1,5 +1,5 @@
-use crate::ipc::HotwiredClient;
 use super::handle_error;
+use crate::ipc::HotwiredClient;
 
 pub async fn list(client: &HotwiredClient) {
     match client
@@ -24,10 +24,7 @@ pub async fn list(client: &HotwiredClient) {
 
             for s in &sessions {
                 let name = s.get("sessionName").and_then(|v| v.as_str()).unwrap_or("-");
-                let project = s
-                    .get("projectDir")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("-");
+                let project = s.get("projectDir").and_then(|v| v.as_str()).unwrap_or("-");
                 let worktree = s
                     .get("isWorktree")
                     .and_then(|v| v.as_bool())
@@ -72,12 +69,8 @@ pub async fn show(client: &HotwiredClient, name: &str) {
 
             match session {
                 Some(s) => {
-                    let session_name =
-                        s.get("sessionName").and_then(|v| v.as_str()).unwrap_or("-");
-                    let project = s
-                        .get("projectDir")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("-");
+                    let session_name = s.get("sessionName").and_then(|v| v.as_str()).unwrap_or("-");
+                    let project = s.get("projectDir").and_then(|v| v.as_str()).unwrap_or("-");
                     let worktree = s
                         .get("isWorktree")
                         .and_then(|v| v.as_bool())

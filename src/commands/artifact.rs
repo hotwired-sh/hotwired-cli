@@ -3,8 +3,8 @@
 //! Simplified artifact handling - replaces 14+ MCP tools with 8 CLI commands.
 //! See Issue #13 and docs/features/COMMENT_ANCHORING.md for background.
 
+use super::{format_timestamp, handle_error, validate};
 use crate::ipc::HotwiredClient;
-use super::{handle_error, format_timestamp, validate};
 use std::path::Path;
 
 /// List all tracked artifacts in the current run
@@ -12,7 +12,10 @@ pub async fn list(client: &HotwiredClient) {
     let state = validate::require_session(client).await;
 
     match client
-        .request("artifact_list", serde_json::json!({ "run_id": state.run_id }))
+        .request(
+            "artifact_list",
+            serde_json::json!({ "run_id": state.run_id }),
+        )
         .await
     {
         Ok(response) if response.success => {
@@ -29,7 +32,10 @@ pub async fn list(client: &HotwiredClient) {
                 return;
             }
 
-            println!("{:<30} {:<8} {:<8} {:<8} {:<20}", "PATH", "STATUS", "COMMENTS", "VERSIONS", "TITLE");
+            println!(
+                "{:<30} {:<8} {:<8} {:<8} {:<20}",
+                "PATH", "STATUS", "COMMENTS", "VERSIONS", "TITLE"
+            );
             for a in &artifacts {
                 let path = a.get("path").and_then(|v| v.as_str()).unwrap_or("-");
                 let status = a.get("status").and_then(|v| v.as_str()).unwrap_or("?");
@@ -51,11 +57,17 @@ pub async fn list(client: &HotwiredClient) {
                     _ => status,
                 };
 
-                println!("{:<30} {:<8} {:<8} {:<8} {:<20}", path, status_display, comments, versions, title_display);
+                println!(
+                    "{:<30} {:<8} {:<8} {:<8} {:<20}",
+                    path, status_display, comments, versions, title_display
+                );
             }
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -84,11 +96,23 @@ pub async fn sync(client: &HotwiredClient, path: &Path) {
     {
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
-            let status = data.get("status").and_then(|v| v.as_str()).unwrap_or("unknown");
-            let title = data.get("title").and_then(|v| v.as_str()).unwrap_or("Untitled");
+            let status = data
+                .get("status")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown");
+            let title = data
+                .get("title")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Untitled");
             let version = data.get("version").and_then(|v| v.as_i64()).unwrap_or(1);
-            let relocated = data.get("comments_relocated").and_then(|v| v.as_i64()).unwrap_or(0);
-            let orphaned = data.get("comments_orphaned").and_then(|v| v.as_i64()).unwrap_or(0);
+            let relocated = data
+                .get("comments_relocated")
+                .and_then(|v| v.as_i64())
+                .unwrap_or(0);
+            let orphaned = data
+                .get("comments_orphaned")
+                .and_then(|v| v.as_i64())
+                .unwrap_or(0);
 
             match status {
                 "registered" => {
@@ -108,7 +132,10 @@ pub async fn sync(client: &HotwiredClient, path: &Path) {
             }
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -116,7 +143,12 @@ pub async fn sync(client: &HotwiredClient, path: &Path) {
 }
 
 /// Move an artifact to a new path (preserves comments)
-pub async fn move_artifact(client: &HotwiredClient, old_path: &Path, new_path: &Path, refs_only: bool) {
+pub async fn move_artifact(
+    client: &HotwiredClient,
+    old_path: &Path,
+    new_path: &Path,
+    refs_only: bool,
+) {
     let state = validate::require_session(client).await;
 
     // Validation
@@ -150,13 +182,27 @@ pub async fn move_artifact(client: &HotwiredClient, old_path: &Path, new_path: &
     {
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
-            let preserved = data.get("comments_preserved").and_then(|v| v.as_i64()).unwrap_or(0);
-            let file_moved = data.get("file_moved").and_then(|v| v.as_bool()).unwrap_or(false);
+            let preserved = data
+                .get("comments_preserved")
+                .and_then(|v| v.as_i64())
+                .unwrap_or(0);
+            let file_moved = data
+                .get("file_moved")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
 
             if file_moved {
-                println!("File moved: {} → {}", old_path.display(), new_path.display());
+                println!(
+                    "File moved: {} → {}",
+                    old_path.display(),
+                    new_path.display()
+                );
             }
-            println!("Artifact refs updated: {} → {}", old_path.display(), new_path.display());
+            println!(
+                "Artifact refs updated: {} → {}",
+                old_path.display(),
+                new_path.display()
+            );
             println!("  {} comments preserved", preserved);
         }
         Ok(response) => {
@@ -197,11 +243,17 @@ pub async fn add_comment(client: &HotwiredClient, path: &Path, target_text: &str
     {
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
-            let comment_id = data.get("comment_id").and_then(|v| v.as_str()).unwrap_or("?");
+            let comment_id = data
+                .get("comment_id")
+                .and_then(|v| v.as_str())
+                .unwrap_or("?");
             println!("Comment added: {}", comment_id);
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -253,7 +305,10 @@ pub async fn list_comments(client: &HotwiredClient, path: &Path, status_filter: 
             }
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -279,7 +334,10 @@ pub async fn resolve(client: &HotwiredClient, comment_id: &str) {
             println!("Comment resolved: {}", comment_id);
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -327,11 +385,19 @@ pub async fn list_versions(client: &HotwiredClient, path: &Path) {
                     format!("+{} -{} lines", added, removed)
                 };
 
-                println!("{:<8} {:<20} {}", version, format_timestamp(timestamp), changes);
+                println!(
+                    "{:<8} {:<20} {}",
+                    version,
+                    format_timestamp(timestamp),
+                    changes
+                );
             }
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -355,8 +421,14 @@ pub async fn get_version(client: &HotwiredClient, path: &Path, version: u32) {
     {
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
-            let title = data.get("title").and_then(|v| v.as_str()).unwrap_or("Untitled");
-            let timestamp = data.get("timestamp").and_then(|v| v.as_str()).unwrap_or("-");
+            let title = data
+                .get("title")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Untitled");
+            let timestamp = data
+                .get("timestamp")
+                .and_then(|v| v.as_str())
+                .unwrap_or("-");
             let content = data.get("content").and_then(|v| v.as_str()).unwrap_or("");
 
             println!("# {} (version {})", title, version);
@@ -366,7 +438,10 @@ pub async fn get_version(client: &HotwiredClient, path: &Path, version: u32) {
             println!("{}", content);
         }
         Ok(response) => {
-            eprintln!("error: {}", response.error.unwrap_or_else(|| "unknown".into()));
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
             std::process::exit(1);
         }
         Err(e) => handle_error(e),
@@ -389,11 +464,7 @@ mod tests {
 
     #[test]
     fn test_status_display() {
-        let statuses = vec![
-            ("ok", "ok"),
-            ("missing", "MISSING"),
-            ("unknown", "unknown"),
-        ];
+        let statuses = vec![("ok", "ok"), ("missing", "MISSING"), ("unknown", "unknown")];
         for (input, expected) in statuses {
             let display = match input {
                 "ok" => "ok",

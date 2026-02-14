@@ -34,9 +34,13 @@ impl std::fmt::Display for ValidationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ValidationError::NoZellijSession => write!(f, "Not running in a Zellij session"),
-            ValidationError::SessionNotRegistered => write!(f, "Session not registered with Hotwired"),
+            ValidationError::SessionNotRegistered => {
+                write!(f, "Session not registered with Hotwired")
+            }
             ValidationError::NotAttachedToRun => write!(f, "Not attached to any run"),
-            ValidationError::RunNotActive(status) => write!(f, "Run is not active (status: {})", status),
+            ValidationError::RunNotActive(status) => {
+                write!(f, "Run is not active (status: {})", status)
+            }
             ValidationError::IpcError(e) => write!(f, "IPC error: {}", e),
         }
     }
@@ -47,8 +51,8 @@ impl std::error::Error for ValidationError {}
 /// Validate session state - call this FIRST in every command except hotwire/pair
 pub async fn validate_session(client: &HotwiredClient) -> Result<SessionState, ValidationError> {
     // 1. Check we're in a Zellij session
-    let zellij_session = std::env::var("ZELLIJ_SESSION_NAME")
-        .map_err(|_| ValidationError::NoZellijSession)?;
+    let zellij_session =
+        std::env::var("ZELLIJ_SESSION_NAME").map_err(|_| ValidationError::NoZellijSession)?;
 
     // 2. Query hotwired-core for session state
     let response = client
@@ -127,7 +131,10 @@ pub fn print_validation_error(err: ValidationError) -> ! {
             eprintln!("  hotwired hotwire --intent \"what you want to do\"");
         }
         ValidationError::RunNotActive(status) => {
-            eprintln!("ERROR: The attached run is no longer active (status: {}).", status);
+            eprintln!(
+                "ERROR: The attached run is no longer active (status: {}).",
+                status
+            );
             eprintln!();
             eprintln!("To join a different run:");
             eprintln!("  hotwired pair <RUN_ID>");

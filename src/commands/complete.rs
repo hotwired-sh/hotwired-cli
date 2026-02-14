@@ -2,8 +2,8 @@
 //!
 //! The `complete` command signals that the assigned work is done.
 
-use crate::ipc::HotwiredClient;
 use super::{handle_error, validate};
+use crate::ipc::HotwiredClient;
 
 pub async fn run(client: &HotwiredClient, outcome: Option<String>) {
     // Validate session first
@@ -31,7 +31,9 @@ pub async fn run(client: &HotwiredClient, outcome: Option<String>) {
         Ok(response) => {
             eprintln!(
                 "error: {}",
-                response.error.unwrap_or_else(|| "failed to complete".into())
+                response
+                    .error
+                    .unwrap_or_else(|| "failed to complete".into())
             );
             std::process::exit(1);
         }

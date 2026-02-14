@@ -3,8 +3,8 @@
 //! The `hotwire` command initializes a new Hotwired workflow. This is one of the
 //! few commands that does NOT require an existing session - it creates one.
 
-use crate::ipc::HotwiredClient;
 use super::handle_error;
+use crate::ipc::HotwiredClient;
 use std::path::PathBuf;
 
 pub async fn run(
@@ -40,7 +40,10 @@ pub async fn run(
     {
         Ok(response) if response.success => {
             let data = response.data.as_ref().unwrap();
-            let status = data.get("status").and_then(|v| v.as_str()).unwrap_or("unknown");
+            let status = data
+                .get("status")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown");
 
             match status {
                 "started" => {
@@ -54,7 +57,10 @@ pub async fn run(
                     println!("{}", protocol);
                 }
                 "needs_confirmation" => {
-                    let pending_id = data.get("pendingRunId").and_then(|v| v.as_str()).unwrap_or("-");
+                    let pending_id = data
+                        .get("pendingRunId")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("-");
                     println!("Run pending confirmation: {}", pending_id);
                     println!();
                     println!("Please confirm the run in the Hotwired app.");

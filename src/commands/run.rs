@@ -1,5 +1,5 @@
-use crate::ipc::HotwiredClient;
 use super::{format_timestamp, handle_error};
+use crate::ipc::HotwiredClient;
 
 async fn resolve_id(client: &HotwiredClient, short_id: &str) -> String {
     // Full UUIDs (with or without dashes) pass through directly
@@ -74,9 +74,8 @@ pub async fn list(client: &HotwiredClient) {
                     .get("templateName")
                     .and_then(|v| v.as_str())
                     .unwrap_or("-");
-                let created = format_timestamp(
-                    run.get("createdAt").and_then(|v| v.as_str()).unwrap_or("-"),
-                );
+                let created =
+                    format_timestamp(run.get("createdAt").and_then(|v| v.as_str()).unwrap_or("-"));
 
                 println!(
                     "{:<10} {:<12} {:<14} {:<24} {}",
@@ -131,10 +130,7 @@ pub async fn show(client: &HotwiredClient, id: &str) {
                         println!();
                         println!("Agents:");
                         for agent in agents {
-                            let role = agent
-                                .get("roleId")
-                                .and_then(|v| v.as_str())
-                                .unwrap_or("-");
+                            let role = agent.get("roleId").and_then(|v| v.as_str()).unwrap_or("-");
                             let session = agent
                                 .get("sessionName")
                                 .and_then(|v| v.as_str())

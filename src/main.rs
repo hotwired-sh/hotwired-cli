@@ -28,7 +28,6 @@ enum Commands {
     // =========================================================================
     // MANAGEMENT COMMANDS
     // =========================================================================
-
     /// Manage workflow runs
     ///
     /// List, inspect, and remove workflow runs.
@@ -69,7 +68,6 @@ enum Commands {
     // =========================================================================
     // WORKFLOW COMMANDS (for agents)
     // =========================================================================
-
     /// Start a new workflow run
     ///
     /// Initializes a new Hotwired workflow. The terminal becomes attached
@@ -197,7 +195,6 @@ enum Commands {
     // =========================================================================
     // ARTIFACT COMMANDS
     // =========================================================================
-
     /// Manage document artifacts
     ///
     /// Track documents, add comments, and view version history.
@@ -484,7 +481,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
 
         // Workflow commands
-        Some(Commands::Hotwire { playbook, intent, project }) => {
+        Some(Commands::Hotwire {
+            playbook,
+            intent,
+            project,
+        }) => {
             commands::hotwire::run(&client, playbook, intent, project).await;
         }
         Some(Commands::Pair { run_id, role }) => {
@@ -500,7 +501,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Commands::Complete { outcome }) => {
             commands::complete::run(&client, outcome).await;
         }
-        Some(Commands::Impediment { description, r#type, suggestion }) => {
+        Some(Commands::Impediment {
+            description,
+            r#type,
+            suggestion,
+        }) => {
             commands::impediment::run(&client, &description, &r#type, suggestion).await;
         }
         Some(Commands::Status) => {
@@ -511,10 +516,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Commands::Artifact { action }) => match action {
             ArtifactAction::List => commands::artifact::list(&client).await,
             ArtifactAction::Sync { path } => commands::artifact::sync(&client, &path).await,
-            ArtifactAction::Move { old_path, new_path, refs_only } => {
+            ArtifactAction::Move {
+                old_path,
+                new_path,
+                refs_only,
+            } => {
                 commands::artifact::move_artifact(&client, &old_path, &new_path, refs_only).await;
             }
-            ArtifactAction::Comment { path, target_text, message } => {
+            ArtifactAction::Comment {
+                path,
+                target_text,
+                message,
+            } => {
                 commands::artifact::add_comment(&client, &path, &target_text, &message).await;
             }
             ArtifactAction::Comments { path, status } => {

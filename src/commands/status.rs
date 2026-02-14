@@ -2,8 +2,8 @@
 //!
 //! The `status` command shows the status of the attached run and connected agents.
 
-use crate::ipc::HotwiredClient;
 use super::{handle_error, validate};
+use crate::ipc::HotwiredClient;
 
 pub async fn run(client: &HotwiredClient) {
     // Validate session first
@@ -52,7 +52,9 @@ pub async fn run(client: &HotwiredClient) {
         Ok(response) => {
             eprintln!(
                 "error: {}",
-                response.error.unwrap_or_else(|| "failed to get status".into())
+                response
+                    .error
+                    .unwrap_or_else(|| "failed to get status".into())
             );
             std::process::exit(1);
         }
