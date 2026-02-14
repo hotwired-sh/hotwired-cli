@@ -19,4 +19,4 @@ Rust CLI that communicates with hotwired-core via Unix socket IPC (`~/.hotwired/
 
 ## Aliases
 
-Commands have Unix-style short aliases: `list`/`ls`, `remove`/`rm`. Run IDs accept short prefixes (like git).
+Commands have Unix-style short aliases: `list`/`ls`, `remove`/`rm`. Run IDs accept short prefixes (like git). Comment IDs can also be abbreviated.
