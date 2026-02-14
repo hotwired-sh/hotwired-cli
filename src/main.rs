@@ -403,6 +403,30 @@ enum SessionAction {
         /// Session name
         name: String,
     },
+
+    /// Register a new session with the Hotwired backend
+    ///
+    /// Called by Claude Code's SessionStart hook to register
+    /// this terminal as an active agent session.
+    Register {
+        /// Zellij session name
+        #[arg(long, short = 's')]
+        session: String,
+
+        /// Project directory path
+        #[arg(long, short = 'p')]
+        project: String,
+    },
+
+    /// Deregister a session from the Hotwired backend
+    ///
+    /// Called by Claude Code's SessionEnd hook to clean up
+    /// when a terminal session ends.
+    Deregister {
+        /// Zellij session name
+        #[arg(long, short = 's')]
+        session: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -448,6 +472,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             SessionAction::List => commands::session::list(&client).await,
             SessionAction::Show { name } => commands::session::show(&client, &name).await,
             SessionAction::Remove { name } => commands::session::remove(&client, &name).await,
+            SessionAction::Register { session, project } => {
+                commands::session::register(&client, &session, &project).await
+            }
+            SessionAction::Deregister { session } => {
+                commands::session::deregister(&client, &session).await
+            }
         },
         Some(Commands::Auth { action }) => match action {
             AuthAction::Status => commands::auth::status(&client).await,

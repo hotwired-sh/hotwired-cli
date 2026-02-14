@@ -129,3 +129,50 @@ pub async fn remove(client: &HotwiredClient, name: &str) {
         Err(e) => handle_error(e),
     }
 }
+
+pub async fn register(client: &HotwiredClient, session: &str, project: &str) {
+    match client
+        .request(
+            "register_session",
+            serde_json::json!({
+                "sessionName": session,
+                "projectDir": project
+            }),
+        )
+        .await
+    {
+        Ok(response) if response.success => {
+            println!("Registered session {}", session);
+        }
+        Ok(response) => {
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown error".into())
+            );
+            std::process::exit(1);
+        }
+        Err(e) => handle_error(e),
+    }
+}
+
+pub async fn deregister(client: &HotwiredClient, session: &str) {
+    match client
+        .request(
+            "deregister_session",
+            serde_json::json!({"sessionName": session}),
+        )
+        .await
+    {
+        Ok(response) if response.success => {
+            println!("Deregistered session {}", session);
+        }
+        Ok(response) => {
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown error".into())
+            );
+            std::process::exit(1);
+        }
+        Err(e) => handle_error(e),
+    }
+}
