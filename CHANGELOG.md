@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/hotwired-sh/hotwired-cli/compare/v1.2.0...v1.3.0) (2026-02-14)
+
+
+### Features
+
+* add pre-commit hooks and mise lint commands ([9089cac](https://github.com/hotwired-sh/hotwired-cli/commit/9089cac103fdcf46a35a6f3d28d9b334b44364db))
+
 # [1.2.0](https://github.com/hotwired-sh/hotwired-cli/compare/v1.1.0...v1.2.0) (2026-02-14)
 
 
