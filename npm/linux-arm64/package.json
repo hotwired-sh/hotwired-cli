@@ -1,6 +1,6 @@
 {
   "name": "@hotwired-sh/cli-linux-arm64",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "hotwired-cli binary for Linux ARM64",
   "license": "MIT",
   "repository": {

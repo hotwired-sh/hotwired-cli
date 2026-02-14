@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/hotwired-sh/hotwired-cli/compare/v1.1.0...v1.2.0) (2026-02-14)
+
+
+### Features
+
+* add session register/deregister commands ([41e02db](https://github.com/hotwired-sh/hotwired-cli/commit/41e02db7e971fda2ab1bd77bd7d07de79f0844fc))
+
 # [1.1.0](https://github.com/hotwired-sh/hotwired-cli/compare/v1.0.0...v1.1.0) (2026-02-14)
 
 
