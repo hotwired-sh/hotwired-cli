@@ -1,6 +1,6 @@
 {
   "name": "@hotwired-sh/hotwired-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "CLI for Hotwired multi-agent workflow orchestration",
   "author": "Hotwired <hello@hotwired.sh>",
   "license": "MIT",
@@ -31,10 +31,10 @@
     "prepare": "husky"
   },
   "optionalDependencies": {
-    "@hotwired-sh/cli-darwin-arm64": "1.0.0",
-    "@hotwired-sh/cli-darwin-x64": "1.0.0",
-    "@hotwired-sh/cli-linux-x64": "1.0.0",
-    "@hotwired-sh/cli-linux-arm64": "1.0.0"
+    "@hotwired-sh/cli-darwin-arm64": "1.1.0",
+    "@hotwired-sh/cli-darwin-x64": "1.1.0",
+    "@hotwired-sh/cli-linux-x64": "1.1.0",
+    "@hotwired-sh/cli-linux-arm64": "1.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
