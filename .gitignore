@@ -34,3 +34,4 @@ Thumbs.db
 # Test coverage
 coverage/
 *.lcov
+docs/designs/
