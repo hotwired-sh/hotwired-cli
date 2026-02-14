@@ -1,0 +1,58 @@
+[tools]
+node = "20"
+
+[tasks.lint]
+description = "Run all lint checks"
+run = """
+#!/usr/bin/env bash
+set -e
+
+echo "=========================================="
+echo "  Running All Lint Checks"
+echo "=========================================="
+echo ""
+
+# Step 1: Rust formatting check
+echo "[1/3] Rust formatting check..."
+cargo fmt --check
+echo "  ✓ Rust formatting OK"
+echo ""
+
+# Step 2: Clippy
+echo "[2/3] Clippy..."
+cargo clippy -- -D warnings
+echo "  ✓ Clippy OK"
+echo ""
+
+# Step 3: Tests
+echo "[3/3] Running tests..."
+cargo test
+echo "  ✓ Tests OK"
+echo ""
+
+echo "=========================================="
+echo "  All lint checks passed! ✅"
+echo "=========================================="
+"""
+
+[tasks.test]
+description = "Run tests"
+run = "cargo test"
+
+[tasks.build]
+description = "Build release binary"
+run = "cargo build --release"
+
+[tasks.fmt]
+description = "Format code"
+run = "cargo fmt"
+
+[tasks.ci]
+description = "Run full CI suite locally"
+run = """
+#!/usr/bin/env bash
+set -e
+
+echo "Running CI suite..."
+mise run lint
+"""

@@ -62,8 +62,8 @@ pub async fn list(client: &HotwiredClient) {
             }
 
             println!(
-                "{:<10} {:<12} {:<14} {:<24} {}",
-                "ID", "STATUS", "PHASE", "PLAYBOOK", "CREATED"
+                "{:<10} {:<12} {:<14} {:<24} CREATED",
+                "ID", "STATUS", "PHASE", "PLAYBOOK"
             );
 
             for run in &runs {

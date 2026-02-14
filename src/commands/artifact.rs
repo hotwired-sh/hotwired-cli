@@ -372,7 +372,7 @@ pub async fn list_versions(client: &HotwiredClient, path: &Path) {
                 return;
             }
 
-            println!("{:<8} {:<20} {}", "VERSION", "TIMESTAMP", "CHANGES");
+            println!("{:<8} {:<20} CHANGES", "VERSION", "TIMESTAMP");
             for v in &versions {
                 let version = v.get("version").and_then(|x| x.as_i64()).unwrap_or(0);
                 let timestamp = v.get("timestamp").and_then(|x| x.as_str()).unwrap_or("-");

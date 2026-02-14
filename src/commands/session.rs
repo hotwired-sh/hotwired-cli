@@ -20,7 +20,7 @@ pub async fn list(client: &HotwiredClient) {
                 return;
             }
 
-            println!("{:<28} {:<44} {}", "SESSION", "PROJECT", "WORKTREE");
+            println!("{:<28} {:<44} WORKTREE", "SESSION", "PROJECT");
 
             for s in &sessions {
                 let name = s.get("sessionName").and_then(|v| v.as_str()).unwrap_or("-");

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Running pre-commit checks..."
+
+# Rust format check
+echo "Checking Rust formatting..."
+cargo fmt --check || exit 1
+
+# Rust clippy
+echo "Running Rust clippy..."
+cargo clippy -- -D warnings || exit 1
+
+echo "All checks passed!"
