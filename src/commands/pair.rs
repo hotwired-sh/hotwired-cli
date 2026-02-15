@@ -20,9 +20,9 @@ pub async fn run(client: &HotwiredClient, run_id: &str, role: Option<&str>) {
         .request(
             "pair",
             serde_json::json!({
-                "zellij_session": zellij_session,
-                "run_id": run_id,
-                "role_id": role,
+                "zellijSession": zellij_session,
+                "runId": run_id,
+                "roleId": role,
             }),
         )
         .await

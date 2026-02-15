@@ -30,9 +30,9 @@ pub async fn run(
         .request(
             "hotwire",
             serde_json::json!({
-                "zellij_session": zellij_session,
-                "project_path": project_path,
-                "suggested_playbook": playbook,
+                "zellijSession": zellij_session,
+                "projectPath": project_path,
+                "suggestedPlaybook": playbook,
                 "intent": intent,
             }),
         )
