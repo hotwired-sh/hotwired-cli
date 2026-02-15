@@ -6,7 +6,7 @@ description = "CLI for Hotwired multi-agent workflow orchestration"
 license = "MIT"
 
 [[bin]]
-name = "hotwired-cli"
+name = "hotwired"
 path = "src/main.rs"
 
 [dependencies]
