@@ -20,7 +20,7 @@ pub async fn run(
             serde_json::json!({
                 "runId": state.run_id,
                 "source": state.role_id,
-                "type": impediment_type,
+                "impedimentType": impediment_type,
                 "description": description,
                 "suggestion": suggestion,
             }),

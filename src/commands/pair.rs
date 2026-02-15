@@ -9,6 +9,9 @@ use crate::ipc::HotwiredClient;
 pub async fn run(client: &HotwiredClient, run_id: &str, role: Option<&str>) {
     // pair does NOT require existing session - it creates the attachment
     let zellij_session = std::env::var("ZELLIJ_SESSION_NAME").ok();
+    let project_path = std::env::current_dir()
+        .ok()
+        .map(|p| p.to_string_lossy().to_string());
 
     if zellij_session.is_none() {
         eprintln!("ERROR: Not running in a Zellij session.");
@@ -21,6 +24,7 @@ pub async fn run(client: &HotwiredClient, run_id: &str, role: Option<&str>) {
             "pair",
             serde_json::json!({
                 "zellijSession": zellij_session,
+                "projectPath": project_path,
                 "runId": run_id,
                 "roleId": role,
             }),
