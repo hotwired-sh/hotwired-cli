@@ -58,7 +58,7 @@ pub async fn validate_session(client: &HotwiredClient) -> Result<SessionState, V
     let response = client
         .request(
             "get_session_state",
-            serde_json::json!({"zellij_session": zellij_session}),
+            serde_json::json!({"zellijSession": zellij_session}),
         )
         .await
         .map_err(ValidationError::IpcError)?;

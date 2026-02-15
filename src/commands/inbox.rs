@@ -61,8 +61,8 @@ async fn fetch_messages(
         .request(
             "get_conversation_events",
             serde_json::json!({
-                "run_id": run_id,
-                "since_sequence": since,
+                "runId": run_id,
+                "sinceSequence": since,
                 "limit": 20,
             }),
         )

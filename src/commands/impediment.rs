@@ -18,7 +18,7 @@ pub async fn run(
         .request(
             "report_impediment",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "source": state.role_id,
                 "type": impediment_type,
                 "description": description,

@@ -14,7 +14,7 @@ pub async fn list(client: &HotwiredClient) {
     match client
         .request(
             "artifact_list",
-            serde_json::json!({ "run_id": state.run_id }),
+            serde_json::json!({ "runId": state.run_id }),
         )
         .await
     {
@@ -88,7 +88,7 @@ pub async fn sync(client: &HotwiredClient, path: &Path) {
         .request(
             "artifact_sync",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "path": path.to_string_lossy(),
             }),
         )
@@ -172,10 +172,10 @@ pub async fn move_artifact(
         .request(
             "artifact_move",
             serde_json::json!({
-                "run_id": state.run_id,
-                "old_path": old_path.to_string_lossy(),
-                "new_path": new_path.to_string_lossy(),
-                "refs_only": refs_only,
+                "runId": state.run_id,
+                "oldPath": old_path.to_string_lossy(),
+                "newPath": new_path.to_string_lossy(),
+                "refsOnly": refs_only,
             }),
         )
         .await
@@ -232,9 +232,9 @@ pub async fn add_comment(client: &HotwiredClient, path: &Path, target_text: &str
         .request(
             "artifact_add_comment",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "path": path.to_string_lossy(),
-                "target_text": target_text,
+                "targetText": target_text,
                 "comment": message,
                 "author": state.role_id,
             }),
@@ -244,7 +244,7 @@ pub async fn add_comment(client: &HotwiredClient, path: &Path, target_text: &str
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
             let comment_id = data
-                .get("comment_id")
+                .get("commentId")
                 .and_then(|v| v.as_str())
                 .unwrap_or("?");
             println!("Comment added: {}", comment_id);
@@ -268,9 +268,9 @@ pub async fn list_comments(client: &HotwiredClient, path: &Path, status_filter: 
         .request(
             "artifact_list_comments",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "path": path.to_string_lossy(),
-                "status_filter": status_filter,
+                "statusFilter": status_filter,
             }),
         )
         .await
@@ -290,8 +290,8 @@ pub async fn list_comments(client: &HotwiredClient, path: &Path, status_filter: 
             }
 
             for c in &comments {
-                let id = c.get("comment_id").and_then(|v| v.as_str()).unwrap_or("?");
-                let target = c.get("target_text").and_then(|v| v.as_str()).unwrap_or("");
+                let id = c.get("commentId").and_then(|v| v.as_str()).unwrap_or("?");
+                let target = c.get("targetText").and_then(|v| v.as_str()).unwrap_or("");
                 let msg = c.get("comment").and_then(|v| v.as_str()).unwrap_or("");
                 let status = c.get("status").and_then(|v| v.as_str()).unwrap_or("?");
 
@@ -323,9 +323,9 @@ pub async fn resolve(client: &HotwiredClient, comment_id: &str) {
         .request(
             "artifact_resolve_comment",
             serde_json::json!({
-                "run_id": state.run_id,
-                "comment_id": comment_id,
-                "resolved_by": state.role_id,
+                "runId": state.run_id,
+                "commentId": comment_id,
+                "resolvedBy": state.role_id,
             }),
         )
         .await
@@ -352,7 +352,7 @@ pub async fn list_versions(client: &HotwiredClient, path: &Path) {
         .request(
             "artifact_list_versions",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "path": path.to_string_lossy(),
             }),
         )
@@ -412,7 +412,7 @@ pub async fn get_version(client: &HotwiredClient, path: &Path, version: u32) {
         .request(
             "artifact_get_version",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "path": path.to_string_lossy(),
                 "version": version,
             }),

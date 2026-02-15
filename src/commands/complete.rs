@@ -13,7 +13,7 @@ pub async fn run(client: &HotwiredClient, outcome: Option<String>) {
         .request(
             "task_complete",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "source": state.role_id,
                 "outcome": outcome.unwrap_or_else(|| "Completed".to_string()),
             }),

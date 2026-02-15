@@ -14,7 +14,7 @@ pub async fn run(client: &HotwiredClient) {
         .request(
             "get_run_status",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
             }),
         )
         .await

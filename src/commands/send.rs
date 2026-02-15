@@ -14,7 +14,7 @@ pub async fn run(client: &HotwiredClient, to: &str, message: &str) {
         .request(
             "handoff",
             serde_json::json!({
-                "run_id": state.run_id,
+                "runId": state.run_id,
                 "to": to,
                 "summary": truncate(message, 50),
                 "details": message,
