@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod internal;
 pub mod run;
 pub mod session;
 pub mod validate;
@@ -297,5 +298,68 @@ mod ipc_params_tests {
         });
         assert_has_camel_case_key(&params, "zellijSession");
         assert_no_snake_case_key(&params, "zellij_session");
+    }
+
+    #[test]
+    fn test_hook_event_params_are_camel_case() {
+        let params = json!({
+            "eventName": "stop",
+            "zellijSession": "test-session",
+            "projectDir": "/path/to/project",
+            "payload": {},
+        });
+
+        assert_has_camel_case_key(&params, "eventName");
+        assert_has_camel_case_key(&params, "zellijSession");
+        assert_has_camel_case_key(&params, "projectDir");
+        assert_no_snake_case_key(&params, "event_name");
+        assert_no_snake_case_key(&params, "zellij_session");
+        assert_no_snake_case_key(&params, "project_dir");
+    }
+
+    #[test]
+    fn test_internal_session_start_params_are_camel_case() {
+        // register_session call
+        let register_params = json!({
+            "sessionName": "test-session",
+            "projectDir": "/path/to/project",
+        });
+        assert_has_camel_case_key(&register_params, "sessionName");
+        assert_has_camel_case_key(&register_params, "projectDir");
+        assert_no_snake_case_key(&register_params, "session_name");
+        assert_no_snake_case_key(&register_params, "project_dir");
+
+        // hook_event call for session_start telemetry
+        let hook_params = json!({
+            "eventName": "session_start",
+            "zellijSession": "test-session",
+            "projectDir": "/path/to/project",
+            "payload": {},
+        });
+        assert_has_camel_case_key(&hook_params, "eventName");
+        assert_has_camel_case_key(&hook_params, "zellijSession");
+        assert_no_snake_case_key(&hook_params, "event_name");
+        assert_no_snake_case_key(&hook_params, "zellij_session");
+    }
+
+    #[test]
+    fn test_internal_session_end_params_are_camel_case() {
+        // deregister_session call
+        let deregister_params = json!({
+            "sessionName": "test-session",
+        });
+        assert_has_camel_case_key(&deregister_params, "sessionName");
+        assert_no_snake_case_key(&deregister_params, "session_name");
+
+        // hook_event call for session_end telemetry
+        let hook_params = json!({
+            "eventName": "session_end",
+            "zellijSession": "test-session",
+            "payload": {},
+        });
+        assert_has_camel_case_key(&hook_params, "eventName");
+        assert_has_camel_case_key(&hook_params, "zellijSession");
+        assert_no_snake_case_key(&hook_params, "event_name");
+        assert_no_snake_case_key(&hook_params, "zellij_session");
     }
 }
