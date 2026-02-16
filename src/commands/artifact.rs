@@ -39,8 +39,8 @@ pub async fn list(client: &HotwiredClient) {
             for a in &artifacts {
                 let path = a.get("path").and_then(|v| v.as_str()).unwrap_or("-");
                 let status = a.get("status").and_then(|v| v.as_str()).unwrap_or("?");
-                let comments = a.get("comment_count").and_then(|v| v.as_i64()).unwrap_or(0);
-                let versions = a.get("version_count").and_then(|v| v.as_i64()).unwrap_or(0);
+                let comments = a.get("commentCount").and_then(|v| v.as_i64()).unwrap_or(0);
+                let versions = a.get("versionCount").and_then(|v| v.as_i64()).unwrap_or(0);
                 let title = a.get("title").and_then(|v| v.as_str()).unwrap_or("-");
 
                 // Truncate title if too long
@@ -106,11 +106,11 @@ pub async fn sync(client: &HotwiredClient, path: &Path) {
                 .unwrap_or("Untitled");
             let version = data.get("version").and_then(|v| v.as_i64()).unwrap_or(1);
             let relocated = data
-                .get("comments_relocated")
+                .get("commentsRelocated")
                 .and_then(|v| v.as_i64())
                 .unwrap_or(0);
             let orphaned = data
-                .get("comments_orphaned")
+                .get("commentsOrphaned")
                 .and_then(|v| v.as_i64())
                 .unwrap_or(0);
 
@@ -183,11 +183,11 @@ pub async fn move_artifact(
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
             let preserved = data
-                .get("comments_preserved")
+                .get("commentsPreserved")
                 .and_then(|v| v.as_i64())
                 .unwrap_or(0);
             let file_moved = data
-                .get("file_moved")
+                .get("fileMoved")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
 
@@ -376,8 +376,8 @@ pub async fn list_versions(client: &HotwiredClient, path: &Path) {
             for v in &versions {
                 let version = v.get("version").and_then(|x| x.as_i64()).unwrap_or(0);
                 let timestamp = v.get("timestamp").and_then(|x| x.as_str()).unwrap_or("-");
-                let added = v.get("lines_added").and_then(|x| x.as_i64()).unwrap_or(0);
-                let removed = v.get("lines_removed").and_then(|x| x.as_i64()).unwrap_or(0);
+                let added = v.get("linesAdded").and_then(|x| x.as_i64()).unwrap_or(0);
+                let removed = v.get("linesRemoved").and_then(|x| x.as_i64()).unwrap_or(0);
 
                 let changes = if version == 1 {
                     "(initial)".to_string()

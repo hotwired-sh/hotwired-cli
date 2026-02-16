@@ -24,7 +24,7 @@ pub async fn run(client: &HotwiredClient, outcome: Option<String>) {
         Ok(response) if response.success => {
             println!("Task marked complete.");
             if let Some(data) = response.data {
-                if let Some(next) = data.get("next_action").and_then(|v| v.as_str()) {
+                if let Some(next) = data.get("nextAction").and_then(|v| v.as_str()) {
                     println!("Next: {}", next);
                 }
             }

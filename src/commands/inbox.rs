@@ -77,7 +77,7 @@ async fn fetch_messages(
                 .unwrap_or_default();
             let max_seq = events
                 .iter()
-                .filter_map(|e| e.get("sequence").and_then(|v| v.as_i64()))
+                .filter_map(|e| e.get("sequenceNum").and_then(|v| v.as_i64()))
                 .max()
                 .unwrap_or(0);
             Ok((events, max_seq))
@@ -99,7 +99,7 @@ fn print_event(event: &serde_json::Value) {
         .or_else(|| event.get("summary").and_then(|v| v.as_str()))
         .unwrap_or("");
     let timestamp = event
-        .get("timestamp")
+        .get("createdAt")
         .and_then(|v| v.as_str())
         .unwrap_or("");
 

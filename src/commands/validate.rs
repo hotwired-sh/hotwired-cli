@@ -69,9 +69,9 @@ pub async fn validate_session(client: &HotwiredClient) -> Result<SessionState, V
 
     let data = response.data.ok_or(ValidationError::SessionNotRegistered)?;
 
-    // 3. Check if attached to a run
+    // 3. Check if attached to a run (server returns camelCase keys)
     let run_id = data
-        .get("attached_run_id")
+        .get("attachedRunId")
         .and_then(|v| v.as_str())
         .filter(|s| !s.is_empty())
         .ok_or(ValidationError::NotAttachedToRun)?
@@ -79,7 +79,7 @@ pub async fn validate_session(client: &HotwiredClient) -> Result<SessionState, V
 
     // 4. Check run status
     let run_status = data
-        .get("run_status")
+        .get("runStatus")
         .and_then(|v| v.as_str())
         .unwrap_or("unknown")
         .to_string();
@@ -90,7 +90,7 @@ pub async fn validate_session(client: &HotwiredClient) -> Result<SessionState, V
 
     // 5. Get role
     let role_id = data
-        .get("role_id")
+        .get("roleId")
         .and_then(|v| v.as_str())
         .unwrap_or("unknown")
         .to_string();

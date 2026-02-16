@@ -24,7 +24,10 @@ pub async fn run(client: &HotwiredClient) {
 
             let status = data.get("status").and_then(|v| v.as_str()).unwrap_or("-");
             let phase = data.get("phase").and_then(|v| v.as_str()).unwrap_or("-");
-            let playbook = data.get("playbook").and_then(|v| v.as_str()).unwrap_or("-");
+            let playbook = data
+                .get("templateName")
+                .and_then(|v| v.as_str())
+                .unwrap_or("-");
 
             println!("Run:      {}", state.run_id);
             println!("Status:   {}", status);
@@ -34,17 +37,20 @@ pub async fn run(client: &HotwiredClient) {
             println!();
 
             // Print connected agents
-            if let Some(agents) = data.get("agents").and_then(|v| v.as_array()) {
+            if let Some(agents) = data.get("connectedAgents").and_then(|v| v.as_array()) {
                 println!("Connected Agents:");
                 for agent in agents {
-                    let role = agent.get("role").and_then(|v| v.as_str()).unwrap_or("-");
-                    let agent_status = agent.get("status").and_then(|v| v.as_str()).unwrap_or("-");
+                    let role = agent.get("roleId").and_then(|v| v.as_str()).unwrap_or("-");
+                    let session = agent
+                        .get("sessionName")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("-");
                     let is_me = role == state.role_id;
                     println!(
-                        "  - {}{} - {}",
+                        "  - {}{} ({})",
                         role,
                         if is_me { " (me)" } else { "" },
-                        agent_status
+                        session
                     );
                 }
             }
