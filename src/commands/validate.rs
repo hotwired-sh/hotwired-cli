@@ -24,7 +24,7 @@ pub enum ValidationError {
     SessionNotRegistered,
     /// Session exists but not attached to any run
     NotAttachedToRun,
-    /// Attached run is completed/cancelled
+    /// Attached run is in a terminal state (completed/failed/cancelled)
     RunNotActive(String),
     /// IPC error (backend not running, etc.)
     IpcError(IpcError),
@@ -84,7 +84,8 @@ pub async fn validate_session(client: &HotwiredClient) -> Result<SessionState, V
         .unwrap_or("unknown")
         .to_string();
 
-    if run_status != "active" && run_status != "paused" {
+    // Only reject truly terminal statuses - blocked/paused runs are still usable
+    if run_status == "completed" || run_status == "failed" || run_status == "cancelled" {
         return Err(ValidationError::RunNotActive(run_status));
     }
 
