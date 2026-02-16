@@ -192,6 +192,19 @@ enum Commands {
     ///     - worker-1 - awaiting_response
     Status,
 
+    /// Re-fetch protocol instructions for your current role
+    ///
+    /// Retrieves the full protocol from hotwired-core, including playbook
+    /// instructions, role-specific instructions, capabilities, and
+    /// initialization conditions.
+    ///
+    /// Use this when your context has been compacted, or you need to
+    /// re-read your workflow instructions.
+    ///
+    /// Example:
+    ///   hotwired-cli protocol
+    Protocol,
+
     // =========================================================================
     // ARTIFACT COMMANDS
     // =========================================================================
@@ -510,6 +523,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some(Commands::Status) => {
             commands::status::run(&client).await;
+        }
+        Some(Commands::Protocol) => {
+            commands::protocol::run(&client).await;
         }
 
         // Artifact commands

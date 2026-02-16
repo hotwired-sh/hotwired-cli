@@ -9,6 +9,7 @@ pub mod hotwire;
 pub mod impediment;
 pub mod inbox;
 pub mod pair;
+pub mod protocol;
 pub mod send;
 pub mod status;
 

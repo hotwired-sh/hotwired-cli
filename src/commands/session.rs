@@ -1,6 +1,18 @@
 use super::handle_error;
 use crate::ipc::HotwiredClient;
 
+/// Format session status for display - make it human-readable
+fn format_status(status: &str) -> &str {
+    match status {
+        "connected" => "connected",
+        "agent_not_running" => "no agent",
+        "detached" => "detached",
+        "zombie" => "zombie",
+        "session_gone" => "gone",
+        other => other,
+    }
+}
+
 pub async fn list(client: &HotwiredClient) {
     match client
         .request("list_active_sessions", serde_json::json!({}))
@@ -20,21 +32,40 @@ pub async fn list(client: &HotwiredClient) {
                 return;
             }
 
-            println!("{:<28} {:<44} WORKTREE", "SESSION", "PROJECT");
+            println!(
+                "{:<28} {:<12} {:<12} {:<14} PROJECT",
+                "SESSION", "STATUS", "ROLE", "RUN"
+            );
 
             for s in &sessions {
                 let name = s.get("sessionName").and_then(|v| v.as_str()).unwrap_or("-");
                 let project = s.get("projectDir").and_then(|v| v.as_str()).unwrap_or("-");
-                let worktree = s
-                    .get("isWorktree")
-                    .and_then(|v| v.as_bool())
-                    .unwrap_or(false);
+                let status = s
+                    .get("sessionStatus")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("unknown");
+                let run_id = s.get("attachedRunId").and_then(|v| v.as_str());
+                // Only show role if attached to a run (role is meaningless without one)
+                let role = if run_id.is_some() {
+                    s.get("roleId").and_then(|v| v.as_str()).unwrap_or("-")
+                } else {
+                    "-"
+                };
+
+                // Truncate run ID for display (first 12 chars)
+                let run_display = match run_id {
+                    Some(id) if id.len() > 12 => &id[..12],
+                    Some(id) => id,
+                    None => "-",
+                };
 
                 println!(
-                    "{:<28} {:<44} {}",
+                    "{:<28} {:<12} {:<12} {:<14} {}",
                     name,
-                    project,
-                    if worktree { "yes" } else { "no" }
+                    format_status(status),
+                    role,
+                    run_display,
+                    project
                 );
             }
         }
@@ -76,12 +107,25 @@ pub async fn show(client: &HotwiredClient, name: &str) {
                         .and_then(|v| v.as_bool())
                         .unwrap_or(false);
                     let git_dir = s.get("gitCommonDir").and_then(|v| v.as_str());
+                    let status = s
+                        .get("sessionStatus")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("unknown");
+                    let run_id = s.get("attachedRunId").and_then(|v| v.as_str());
+                    let role = s.get("roleId").and_then(|v| v.as_str());
 
-                    println!("Session:    {}", session_name);
-                    println!("Project:    {}", project);
-                    println!("Worktree:   {}", if worktree { "yes" } else { "no" });
+                    println!("Session:  {}", session_name);
+                    println!("Status:   {}", format_status(status));
+                    println!("Project:  {}", project);
+                    println!("Worktree: {}", if worktree { "yes" } else { "no" });
                     if let Some(dir) = git_dir {
-                        println!("Git dir:    {}", dir);
+                        println!("Git dir:  {}", dir);
+                    }
+                    if let Some(rid) = run_id {
+                        println!("Run:      {}", rid);
+                    }
+                    if let Some(r) = role {
+                        println!("Role:     {}", r);
                     }
                 }
                 None => {
