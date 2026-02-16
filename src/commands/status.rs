@@ -29,29 +29,48 @@ pub async fn run(client: &HotwiredClient) {
                 .and_then(|v| v.as_str())
                 .unwrap_or("-");
 
+            // Identity block — make it unambiguous who the calling agent is
+            println!("YOU ARE:  {}", state.role_id);
+            println!(
+                "Session:  {} (auto-detected from Zellij)",
+                state.zellij_session
+            );
+            println!();
             println!("Run:      {}", state.run_id);
             println!("Status:   {}", status);
             println!("Phase:    {}", phase);
             println!("Playbook: {}", playbook);
-            println!("My Role:  {} ({})", state.role_id, state.run_status);
             println!();
 
-            // Print connected agents
+            // Print connected agents with clear "you" marker
             if let Some(agents) = data.get("connectedAgents").and_then(|v| v.as_array()) {
                 println!("Connected Agents:");
                 for agent in agents {
                     let role = agent.get("roleId").and_then(|v| v.as_str()).unwrap_or("-");
-                    let session = agent
-                        .get("sessionName")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("-");
                     let is_me = role == state.role_id;
-                    println!(
-                        "  - {}{} ({})",
-                        role,
-                        if is_me { " (me)" } else { "" },
-                        session
-                    );
+                    if is_me {
+                        println!("  > {} (you)", role);
+                    } else {
+                        println!("  - {}", role);
+                    }
+                }
+            }
+
+            // Show impediments when run is blocked
+            if let Some(impediments) = data.get("impediments").and_then(|v| v.as_array()) {
+                if !impediments.is_empty() {
+                    println!();
+                    println!("BLOCKED BY:");
+                    for imp in impediments {
+                        let source = imp.get("source").and_then(|v| v.as_str()).unwrap_or("-");
+                        let desc = imp
+                            .get("description")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("-");
+                        println!("  - [{}]: {}", source, desc);
+                    }
+                    println!();
+                    println!("To resolve: hotwired resolve \"<reason>\"");
                 }
             }
         }

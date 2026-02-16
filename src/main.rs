@@ -175,6 +175,18 @@ enum Commands {
         suggestion: Option<String>,
     },
 
+    /// Resolve impediments and unblock the run
+    ///
+    /// Clears impediments you raised (or all impediments if your role has canResolveImpediments).
+    ///
+    /// Examples:
+    ///   hotwired-cli resolve "Critiquer has joined, no longer blocked"
+    ///   hotwired-cli resolve "Requirements clarified"
+    Resolve {
+        /// Explanation of why the impediment is resolved
+        message: String,
+    },
+
     /// Check current run status
     ///
     /// Shows the status of the attached run and connected agents.
@@ -204,6 +216,16 @@ enum Commands {
     /// Example:
     ///   hotwired-cli protocol
     Protocol,
+
+    // =========================================================================
+    // INTERNAL COMMANDS (hidden, used by Claude Code hooks)
+    // =========================================================================
+    /// Internal commands for Claude Code hook integration
+    #[command(hide = true)]
+    Internal {
+        #[command(subcommand)]
+        action: InternalAction,
+    },
 
     // =========================================================================
     // ARTIFACT COMMANDS
@@ -440,6 +462,21 @@ enum SessionAction {
 }
 
 #[derive(Subcommand)]
+enum InternalAction {
+    /// Forward a Claude Code hook event to the backend
+    HookEvent {
+        /// Hook event name (e.g., stop, pre_compact, notification)
+        event: String,
+    },
+
+    /// Register session on Claude Code startup
+    SessionStart,
+
+    /// Deregister session on Claude Code shutdown
+    SessionEnd,
+}
+
+#[derive(Subcommand)]
 enum AuthAction {
     /// Show connection and authentication status
     ///
@@ -493,6 +530,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             AuthAction::Status => commands::auth::status(&client).await,
         },
 
+        // Internal commands (Claude Code hooks)
+        Some(Commands::Internal { action }) => match action {
+            InternalAction::HookEvent { event } => {
+                commands::internal::hook_event(&client, &event).await
+            }
+            InternalAction::SessionStart => commands::internal::session_start(&client).await,
+            InternalAction::SessionEnd => commands::internal::session_end(&client).await,
+        },
+
         // Workflow commands
         Some(Commands::Hotwire {
             playbook,
@@ -520,6 +566,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             suggestion,
         }) => {
             commands::impediment::run(&client, &description, &r#type, suggestion).await;
+        }
+        Some(Commands::Resolve { message }) => {
+            commands::impediment::resolve(&client, &message).await;
         }
         Some(Commands::Status) => {
             commands::status::run(&client).await;
