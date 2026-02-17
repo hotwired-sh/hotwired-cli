@@ -317,13 +317,17 @@ enum ArtifactAction {
 
     /// Resolve a comment
     ///
-    /// Marks a comment as resolved.
+    /// Marks a comment as resolved. Optionally leave a closing reply.
     ///
     /// Examples:
     ///   hotwired-cli artifact resolve cmt_abc123
+    ///   hotwired-cli artifact resolve cmt_abc123 --reply "Addressed in revision 3"
     Resolve {
         /// Comment ID
         comment_id: String,
+        /// Optional closing reply before resolving
+        #[arg(long)]
+        reply: Option<String>,
     },
 
     /// List all versions of an artifact
@@ -376,6 +380,20 @@ enum CommentAction {
         /// Reply to an existing comment (creates a threaded reply)
         #[arg(long)]
         reply_to: Option<String>,
+    },
+
+    /// Reply to an existing comment
+    ///
+    /// Creates a threaded reply inheriting the parent's path and selection.
+    /// No need to specify path or target_text — they are inherited from the parent.
+    ///
+    /// Examples:
+    ///   hotwired-cli artifact comment reply cmt_abc123 "I agree, will fix"
+    Reply {
+        /// Comment ID to reply to
+        comment_id: String,
+        /// Reply message
+        message: String,
     },
 
     /// Show a specific comment and its thread
@@ -648,6 +666,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .await;
                 }
+                CommentAction::Reply {
+                    comment_id,
+                    message,
+                } => {
+                    commands::artifact::reply_comment(&client, &comment_id, &message).await;
+                }
                 CommentAction::Show { comment_id } => {
                     commands::artifact::show_comment(&client, &comment_id).await;
                 }
@@ -658,8 +682,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ArtifactAction::Comments { path, status } => {
                 commands::artifact::list_comments(&client, &path, &status).await;
             }
-            ArtifactAction::Resolve { comment_id } => {
-                commands::artifact::resolve(&client, &comment_id).await;
+            ArtifactAction::Resolve { comment_id, reply } => {
+                commands::artifact::resolve(&client, &comment_id, reply.as_deref()).await;
             }
             ArtifactAction::Versions { path } => {
                 commands::artifact::list_versions(&client, &path).await;
