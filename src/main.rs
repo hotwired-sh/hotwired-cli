@@ -292,28 +292,21 @@ enum ArtifactAction {
         refs_only: bool,
     },
 
-    /// Add a comment anchored to specific text
+    /// Manage comments on artifacts
     ///
-    /// Comments are anchored to the target text content, not line numbers.
-    /// They will be relocated automatically when the file is edited and synced.
+    /// Add, list, and inspect comments anchored to document text.
     ///
     /// Examples:
-    ///   hotwired-cli artifact comment docs/PRD.md "authentication flow" "Consider OAuth2"
+    ///   hotwired-cli artifact comment add docs/PRD.md "auth flow" "Consider OAuth2"
+    ///   hotwired-cli artifact comment list docs/PRD.md
+    ///   hotwired-cli artifact comment show cmt_abc123
     Comment {
-        /// Path to the artifact
-        path: PathBuf,
-        /// Text to anchor the comment to (must exist in the document)
-        target_text: String,
-        /// Comment message
-        message: String,
+        #[command(subcommand)]
+        action: CommentAction,
     },
 
-    /// List comments on an artifact
-    ///
-    /// Example output:
-    ///
-    ///   [cmt_abc123] "authentication flow..." - Consider OAuth2 (open)
-    ///   [cmt_def456] "rate limiting..." - Add to MVP scope? (resolved)
+    /// Shorthand for `artifact comment list`
+    #[command(hide = true)]
     Comments {
         /// Path to the artifact
         path: PathBuf,
@@ -360,6 +353,55 @@ enum ArtifactAction {
         path: PathBuf,
         /// Version number
         version: u32,
+    },
+}
+
+#[derive(Subcommand)]
+enum CommentAction {
+    /// Add a comment anchored to specific text
+    ///
+    /// Comments are anchored to the target text content, not line numbers.
+    /// They will be relocated automatically when the file is edited and synced.
+    ///
+    /// Examples:
+    ///   hotwired-cli artifact comment add docs/PRD.md "auth flow" "Consider OAuth2"
+    ///   hotwired-cli artifact comment add docs/PRD.md "auth flow" "I disagree" --reply-to cmt_abc123
+    Add {
+        /// Path to the artifact
+        path: PathBuf,
+        /// Text to anchor the comment to (must exist in the document)
+        target_text: String,
+        /// Comment message
+        message: String,
+        /// Reply to an existing comment (creates a threaded reply)
+        #[arg(long)]
+        reply_to: Option<String>,
+    },
+
+    /// Show a specific comment and its thread
+    ///
+    /// Retrieves a comment by ID along with any replies in its thread.
+    ///
+    /// Examples:
+    ///   hotwired-cli artifact comment show cmt_abc123
+    Show {
+        /// Comment ID
+        comment_id: String,
+    },
+
+    /// List comments on an artifact
+    ///
+    /// Example output:
+    ///
+    ///   [cmt_abc123] "authentication flow..." - Consider OAuth2 (open)
+    ///   [cmt_def456] "rate limiting..." - Add to MVP scope? (resolved)
+    #[command(alias = "ls")]
+    List {
+        /// Path to the artifact
+        path: PathBuf,
+        /// Filter by status: open, resolved, all
+        #[arg(long, default_value = "open")]
+        status: String,
     },
 }
 
@@ -589,12 +631,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 commands::artifact::move_artifact(&client, &old_path, &new_path, refs_only).await;
             }
             ArtifactAction::Comment {
-                path,
-                target_text,
-                message,
-            } => {
-                commands::artifact::add_comment(&client, &path, &target_text, &message).await;
-            }
+                action: comment_action,
+            } => match comment_action {
+                CommentAction::Add {
+                    path,
+                    target_text,
+                    message,
+                    reply_to,
+                } => {
+                    commands::artifact::add_comment(
+                        &client,
+                        &path,
+                        &target_text,
+                        &message,
+                        reply_to.as_deref(),
+                    )
+                    .await;
+                }
+                CommentAction::Show { comment_id } => {
+                    commands::artifact::show_comment(&client, &comment_id).await;
+                }
+                CommentAction::List { path, status } => {
+                    commands::artifact::list_comments(&client, &path, &status).await;
+                }
+            },
             ArtifactAction::Comments { path, status } => {
                 commands::artifact::list_comments(&client, &path, &status).await;
             }

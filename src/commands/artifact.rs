@@ -225,29 +225,42 @@ pub async fn move_artifact(
 }
 
 /// Add a comment anchored to specific text
-pub async fn add_comment(client: &HotwiredClient, path: &Path, target_text: &str, message: &str) {
+pub async fn add_comment(
+    client: &HotwiredClient,
+    path: &Path,
+    target_text: &str,
+    message: &str,
+    reply_to: Option<&str>,
+) {
     let state = validate::require_session(client).await;
 
-    match client
-        .request(
-            "artifact_add_comment",
-            serde_json::json!({
-                "runId": state.run_id,
-                "path": path.to_string_lossy(),
-                "targetText": target_text,
-                "comment": message,
-                "author": state.role_id,
-            }),
-        )
-        .await
-    {
+    let mut params = serde_json::json!({
+        "runId": state.run_id,
+        "path": path.to_string_lossy(),
+        "targetText": target_text,
+        "comment": message,
+        "author": state.role_id,
+    });
+
+    if let Some(parent_id) = reply_to {
+        params
+            .as_object_mut()
+            .unwrap()
+            .insert("parentCommentId".to_string(), serde_json::json!(parent_id));
+    }
+
+    match client.request("artifact_add_comment", params).await {
         Ok(response) if response.success => {
             let data = response.data.unwrap_or_default();
             let comment_id = data
                 .get("commentId")
                 .and_then(|v| v.as_str())
                 .unwrap_or("?");
-            println!("Comment added: {}", comment_id);
+            if let Some(parent_id) = reply_to {
+                println!("Reply added: {} (in thread of {})", comment_id, parent_id);
+            } else {
+                println!("Comment added: {}", comment_id);
+            }
         }
         Ok(response) => {
             eprintln!(
@@ -289,11 +302,26 @@ pub async fn list_comments(client: &HotwiredClient, path: &Path, status_filter: 
                 return;
             }
 
+            // Separate top-level comments from replies (thread_id present = reply)
+            let mut top_level: Vec<&serde_json::Value> = Vec::new();
+            let mut replies: std::collections::HashMap<String, Vec<&serde_json::Value>> =
+                std::collections::HashMap::new();
+
             for c in &comments {
+                let thread_id = c.get("threadId").and_then(|v| v.as_str());
+                if let Some(tid) = thread_id {
+                    replies.entry(tid.to_string()).or_default().push(c);
+                } else {
+                    top_level.push(c);
+                }
+            }
+
+            for c in &top_level {
                 let id = c.get("commentId").and_then(|v| v.as_str()).unwrap_or("?");
                 let target = c.get("targetText").and_then(|v| v.as_str()).unwrap_or("");
                 let msg = c.get("comment").and_then(|v| v.as_str()).unwrap_or("");
                 let status = c.get("status").and_then(|v| v.as_str()).unwrap_or("?");
+                let author = c.get("author").and_then(|v| v.as_str()).unwrap_or("?");
 
                 let target_preview = if target.len() > 30 {
                     format!("{}...", &target[..30])
@@ -301,7 +329,105 @@ pub async fn list_comments(client: &HotwiredClient, path: &Path, status_filter: 
                     target.to_string()
                 };
 
-                println!("[{}] \"{}\" - {} ({})", id, target_preview, msg, status);
+                println!(
+                    "[{}] \"{}\" - {}  ({}, {})",
+                    id, target_preview, msg, author, status
+                );
+
+                // Print threaded replies indented
+                if let Some(thread_replies) = replies.get(id) {
+                    for r in thread_replies {
+                        let rid = r.get("commentId").and_then(|v| v.as_str()).unwrap_or("?");
+                        let rmsg = r.get("comment").and_then(|v| v.as_str()).unwrap_or("");
+                        let rauthor = r.get("author").and_then(|v| v.as_str()).unwrap_or("?");
+
+                        let rmsg_preview = if rmsg.len() > 60 {
+                            format!("{}...", &rmsg[..57])
+                        } else {
+                            rmsg.to_string()
+                        };
+
+                        println!("  \u{21b3} [{}] {}: {}", rid, rauthor, rmsg_preview);
+                    }
+                }
+            }
+        }
+        Ok(response) => {
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
+            std::process::exit(1);
+        }
+        Err(e) => handle_error(e),
+    }
+}
+
+/// Show a specific comment and its thread
+pub async fn show_comment(client: &HotwiredClient, comment_id: &str) {
+    let state = validate::require_session(client).await;
+
+    match client
+        .request(
+            "artifact_get_comment",
+            serde_json::json!({
+                "runId": state.run_id,
+                "commentId": comment_id,
+            }),
+        )
+        .await
+    {
+        Ok(response) if response.success => {
+            let data = response.data.unwrap_or_default();
+            let comment = data.get("comment");
+            let replies = data
+                .get("replies")
+                .and_then(|r| r.as_array())
+                .cloned()
+                .unwrap_or_default();
+
+            if let Some(c) = comment {
+                let id = c.get("commentId").and_then(|v| v.as_str()).unwrap_or("?");
+                let target = c.get("targetText").and_then(|v| v.as_str()).unwrap_or("");
+                let msg = c.get("comment").and_then(|v| v.as_str()).unwrap_or("");
+                let status = c.get("status").and_then(|v| v.as_str()).unwrap_or("?");
+                let author = c.get("author").and_then(|v| v.as_str()).unwrap_or("?");
+                let thread_id = c.get("threadId").and_then(|v| v.as_str());
+                let created = c.get("createdAt").and_then(|v| v.as_str()).unwrap_or("-");
+
+                println!("Comment:  {}", id);
+                println!("Author:   {}", author);
+                println!("Status:   {}", status);
+                println!("Created:  {}", format_timestamp(created));
+                if let Some(tid) = thread_id {
+                    println!("Thread:   {} (this is a reply)", tid);
+                }
+                if !target.is_empty() {
+                    println!("On text:  \"{}\"", target);
+                }
+                println!();
+                println!("{}", msg);
+
+                if !replies.is_empty() {
+                    println!();
+                    println!("--- Replies ({}) ---", replies.len());
+                    for r in &replies {
+                        let rid = r.get("commentId").and_then(|v| v.as_str()).unwrap_or("?");
+                        let rmsg = r.get("comment").and_then(|v| v.as_str()).unwrap_or("");
+                        let rauthor = r.get("author").and_then(|v| v.as_str()).unwrap_or("?");
+                        let rcreated = r.get("createdAt").and_then(|v| v.as_str()).unwrap_or("-");
+
+                        println!();
+                        println!("  [{}] {} ({})", rid, rauthor, format_timestamp(rcreated));
+                        // Indent each line of the reply message
+                        for line in rmsg.lines() {
+                            println!("  {}", line);
+                        }
+                    }
+                }
+            } else {
+                eprintln!("error: No comment data in response");
+                std::process::exit(1);
             }
         }
         Ok(response) => {
