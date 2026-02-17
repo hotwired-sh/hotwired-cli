@@ -441,23 +441,65 @@ pub async fn show_comment(client: &HotwiredClient, comment_id: &str) {
     }
 }
 
-/// Resolve a comment
-pub async fn resolve(client: &HotwiredClient, comment_id: &str) {
+/// Reply to an existing comment (inherits path/selection from parent)
+pub async fn reply_comment(client: &HotwiredClient, comment_id: &str, message: &str) {
     let state = validate::require_session(client).await;
 
     match client
         .request(
-            "artifact_resolve_comment",
+            "artifact_reply_comment",
             serde_json::json!({
                 "runId": state.run_id,
                 "commentId": comment_id,
-                "resolvedBy": state.role_id,
+                "message": message,
+                "author": state.role_id,
             }),
         )
         .await
     {
         Ok(response) if response.success => {
-            println!("Comment resolved: {}", comment_id);
+            let data = response.data.unwrap_or_default();
+            let reply_id = data
+                .get("commentId")
+                .and_then(|v| v.as_str())
+                .unwrap_or("?");
+            println!("Reply added: {} (in thread of {})", reply_id, comment_id);
+        }
+        Ok(response) => {
+            eprintln!(
+                "error: {}",
+                response.error.unwrap_or_else(|| "unknown".into())
+            );
+            std::process::exit(1);
+        }
+        Err(e) => handle_error(e),
+    }
+}
+
+/// Resolve a comment
+pub async fn resolve(client: &HotwiredClient, comment_id: &str, reply: Option<&str>) {
+    let state = validate::require_session(client).await;
+
+    let mut params = serde_json::json!({
+        "runId": state.run_id,
+        "commentId": comment_id,
+        "resolvedBy": state.role_id,
+    });
+
+    if let Some(reply_msg) = reply {
+        params
+            .as_object_mut()
+            .unwrap()
+            .insert("reply".to_string(), serde_json::json!(reply_msg));
+    }
+
+    match client.request("artifact_resolve_comment", params).await {
+        Ok(response) if response.success => {
+            if reply.is_some() {
+                println!("Reply added and comment resolved: {}", comment_id);
+            } else {
+                println!("Comment resolved: {}", comment_id);
+            }
         }
         Ok(response) => {
             eprintln!(
