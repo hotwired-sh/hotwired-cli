@@ -213,9 +213,21 @@ enum Commands {
     /// Use this when your context has been compacted, or you need to
     /// re-read your workflow instructions.
     ///
-    /// Example:
+    /// With --playbook and --role, fetches protocol from a different playbook
+    /// (e.g., for /open in-run mode where you need editor instructions while
+    /// already in a plan-build run).
+    ///
+    /// Examples:
     ///   hotwired-cli protocol
-    Protocol,
+    ///   hotwired-cli protocol --playbook doc-open --role editor
+    Protocol {
+        /// Fetch protocol from a specific playbook (cross-playbook use)
+        #[arg(long)]
+        playbook: Option<String>,
+        /// Role to fetch within the playbook (required with --playbook)
+        #[arg(long)]
+        role: Option<String>,
+    },
 
     // =========================================================================
     // INTERNAL COMMANDS (hidden, used by Claude Code hooks)
@@ -633,8 +645,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Commands::Status) => {
             commands::status::run(&client).await;
         }
-        Some(Commands::Protocol) => {
-            commands::protocol::run(&client).await;
+        Some(Commands::Protocol { playbook, role }) => {
+            commands::protocol::run(&client, playbook, role).await;
         }
 
         // Artifact commands
