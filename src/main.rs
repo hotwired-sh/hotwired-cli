@@ -230,6 +230,18 @@ enum Commands {
     },
 
     // =========================================================================
+    // UTILITY COMMANDS
+    // =========================================================================
+    /// Upgrade Hotwired components (Claude plugin, prompts, hooks)
+    ///
+    /// Updates the Claude Code plugin to the latest version, ensuring
+    /// agents get the newest playbook commands and lifecycle hooks.
+    ///
+    /// Examples:
+    ///   hotwired-cli upgrade
+    Upgrade,
+
+    // =========================================================================
     // INTERNAL COMMANDS (hidden, used by Claude Code hooks)
     // =========================================================================
     /// Internal commands for Claude Code hook integration
@@ -647,6 +659,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some(Commands::Protocol { playbook, role }) => {
             commands::protocol::run(&client, playbook, role).await;
+        }
+        Some(Commands::Upgrade) => {
+            commands::upgrade::run();
         }
 
         // Artifact commands

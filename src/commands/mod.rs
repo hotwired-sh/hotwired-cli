@@ -17,6 +17,9 @@ pub mod status;
 // Artifact commands
 pub mod artifact;
 
+// Utility commands
+pub mod upgrade;
+
 use crate::ipc::{HotwiredClient, IpcError};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
