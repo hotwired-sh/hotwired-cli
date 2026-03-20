@@ -232,13 +232,16 @@ enum Commands {
     // =========================================================================
     // UTILITY COMMANDS
     // =========================================================================
-    /// Upgrade Hotwired components (Claude plugin, prompts, hooks)
+    /// Update the CLI and Claude Code commands
     ///
-    /// Updates the Claude Code plugin to the latest version, ensuring
-    /// agents get the newest playbook commands and lifecycle hooks.
+    /// Updates two things:
+    ///   1. The hotwired CLI binary (from npm)
+    ///   2. Claude Code commands (/open, /hotwire, /pair, etc.)
+    ///
+    /// Does NOT update the Hotwired desktop app.
     ///
     /// Examples:
-    ///   hotwired-cli upgrade
+    ///   hotwired upgrade
     Upgrade,
 
     // =========================================================================
