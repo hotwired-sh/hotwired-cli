@@ -214,7 +214,7 @@ pub async fn move_artifact(
                 eprintln!("error: {}", err);
                 eprintln!();
                 eprintln!("The artifact must be synced first. Run:");
-                eprintln!("  hotwired-cli artifact sync {}", old_path.display());
+                eprintln!("  hotwired artifact sync {}", old_path.display());
             } else {
                 eprintln!("error: {}", err);
             }
