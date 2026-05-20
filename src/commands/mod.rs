@@ -37,9 +37,9 @@ pub async fn print_version(socket_path: Option<String>) {
     };
 
     match core_version {
-        Some(v) => println!("hotwired-cli {} (core {})", VERSION, v),
+        Some(v) => println!("hotwired {} (core {})", VERSION, v),
         None => println!(
-            "hotwired-cli {} (not connected - is Hotwired.sh desktop app running?)",
+            "hotwired {} (not connected - is Hotwired.sh desktop app running?)",
             VERSION
         ),
     }

@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 /// Hotwired CLI - manage workflows, sessions, and runs
 #[derive(Parser)]
-#[command(name = "hotwired-cli")]
+#[command(name = "hotwired")]
 #[command(about = "CLI for Hotwired multi-agent workflow orchestration")]
 #[command(disable_version_flag = true)]
 struct Args {
@@ -33,10 +33,10 @@ enum Commands {
     /// List, inspect, and remove workflow runs.
     ///
     /// Examples:
-    ///   hotwired-cli run list
-    ///   hotwired-cli run ls
-    ///   hotwired-cli run show a1b2c3d4
-    ///   hotwired-cli run rm a1b2c3d4
+    ///   hotwired run list
+    ///   hotwired run ls
+    ///   hotwired run show a1b2c3d4
+    ///   hotwired run rm a1b2c3d4
     Run {
         #[command(subcommand)]
         action: RunAction,
@@ -47,10 +47,10 @@ enum Commands {
     /// List, inspect, and remove active agent sessions.
     ///
     /// Examples:
-    ///   hotwired-cli session list
-    ///   hotwired-cli session ls
-    ///   hotwired-cli session show hotwired-strategist
-    ///   hotwired-cli session rm hotwired-builder
+    ///   hotwired session list
+    ///   hotwired session ls
+    ///   hotwired session show hotwired-strategist
+    ///   hotwired session rm hotwired-builder
     Session {
         #[command(subcommand)]
         action: SessionAction,
@@ -74,8 +74,8 @@ enum Commands {
     /// to the run and receives the protocol instructions.
     ///
     /// Examples:
-    ///   hotwired-cli hotwire --intent "Build user authentication"
-    ///   hotwired-cli hotwire --playbook architect-team --intent "Implement OAuth"
+    ///   hotwired hotwire --intent "Build user authentication"
+    ///   hotwired hotwire --playbook architect-team --intent "Implement OAuth"
     Hotwire {
         /// Playbook to use (e.g., plan-build, architect-team)
         #[arg(long)]
@@ -96,8 +96,8 @@ enum Commands {
     /// protocol instructions for your assigned role.
     ///
     /// Examples:
-    ///   hotwired-cli pair abc123
-    ///   hotwired-cli pair abc123 --role worker-1
+    ///   hotwired pair abc123
+    ///   hotwired pair abc123 --role worker-1
     Pair {
         /// Run ID to join
         run_id: String,
@@ -112,8 +112,8 @@ enum Commands {
     /// Sends a handoff or message to another agent or the human operator.
     ///
     /// Examples:
-    ///   hotwired-cli send --to orchestrator "Task 1.1 complete"
-    ///   hotwired-cli send --to human "Need clarification on auth approach"
+    ///   hotwired send --to orchestrator "Task 1.1 complete"
+    ///   hotwired send --to human "Need clarification on auth approach"
     Send {
         /// Recipient: orchestrator, implementer, human, or role ID
         #[arg(long)]
@@ -129,9 +129,9 @@ enum Commands {
     /// Retrieves recent messages from the conversation.
     ///
     /// Examples:
-    ///   hotwired-cli inbox
-    ///   hotwired-cli inbox --watch
-    ///   hotwired-cli inbox --since 42
+    ///   hotwired inbox
+    ///   hotwired inbox --watch
+    ///   hotwired inbox --since 42
     Inbox {
         /// Continuously watch for new messages
         #[arg(long)]
@@ -147,8 +147,8 @@ enum Commands {
     /// Signals that your assigned work is done.
     ///
     /// Examples:
-    ///   hotwired-cli complete
-    ///   hotwired-cli complete --outcome "All tests passing"
+    ///   hotwired complete
+    ///   hotwired complete --outcome "All tests passing"
     Complete {
         /// Description of the outcome
         #[arg(long)]
@@ -160,8 +160,8 @@ enum Commands {
     /// Signals that you're stuck and need help.
     ///
     /// Examples:
-    ///   hotwired-cli impediment "Cannot access database"
-    ///   hotwired-cli impediment "Need push access" --type access --suggestion "Grant write perms"
+    ///   hotwired impediment "Cannot access database"
+    ///   hotwired impediment "Need push access" --type access --suggestion "Grant write perms"
     Impediment {
         /// Description of the blocker
         description: String,
@@ -180,8 +180,8 @@ enum Commands {
     /// Clears impediments you raised (or all impediments if your role has canResolveImpediments).
     ///
     /// Examples:
-    ///   hotwired-cli resolve "Critiquer has joined, no longer blocked"
-    ///   hotwired-cli resolve "Requirements clarified"
+    ///   hotwired resolve "Critiquer has joined, no longer blocked"
+    ///   hotwired resolve "Requirements clarified"
     Resolve {
         /// Explanation of why the impediment is resolved
         message: String,
@@ -218,8 +218,8 @@ enum Commands {
     /// already in a plan-build run).
     ///
     /// Examples:
-    ///   hotwired-cli protocol
-    ///   hotwired-cli protocol --playbook doc-open --role editor
+    ///   hotwired protocol
+    ///   hotwired protocol --playbook doc-open --role editor
     Protocol {
         /// Fetch protocol from a specific playbook (cross-playbook use)
         #[arg(long)]
@@ -263,9 +263,9 @@ enum Commands {
     /// Replaces the complex MCP artifact tools with simple file-based workflow.
     ///
     /// Examples:
-    ///   hotwired-cli artifact ls
-    ///   hotwired-cli artifact sync docs/PRD.md
-    ///   hotwired-cli artifact comment docs/PRD.md "auth flow" "Consider OAuth"
+    ///   hotwired artifact ls
+    ///   hotwired artifact sync docs/PRD.md
+    ///   hotwired artifact comment docs/PRD.md "auth flow" "Consider OAuth"
     Artifact {
         #[command(subcommand)]
         action: ArtifactAction,
@@ -292,7 +292,7 @@ enum ArtifactAction {
     /// Creates a versioned snapshot and relocates comment anchors.
     ///
     /// Examples:
-    ///   hotwired-cli artifact sync docs/PRD.md
+    ///   hotwired artifact sync docs/PRD.md
     Sync {
         /// Path to the file
         path: PathBuf,
@@ -306,8 +306,8 @@ enum ArtifactAction {
     /// NOTE: The artifact must already be synced. If not, run `artifact sync` first.
     ///
     /// Examples:
-    ///   hotwired-cli artifact mv docs/old.md docs/new.md
-    ///   hotwired-cli artifact mv docs/old.md docs/new.md --refs-only
+    ///   hotwired artifact mv docs/old.md docs/new.md
+    ///   hotwired artifact mv docs/old.md docs/new.md --refs-only
     #[command(alias = "mv")]
     Move {
         /// Current path (where artifact is registered)
@@ -324,9 +324,9 @@ enum ArtifactAction {
     /// Add, list, and inspect comments anchored to document text.
     ///
     /// Examples:
-    ///   hotwired-cli artifact comment add docs/PRD.md "auth flow" "Consider OAuth2"
-    ///   hotwired-cli artifact comment list docs/PRD.md
-    ///   hotwired-cli artifact comment show cmt_abc123
+    ///   hotwired artifact comment add docs/PRD.md "auth flow" "Consider OAuth2"
+    ///   hotwired artifact comment list docs/PRD.md
+    ///   hotwired artifact comment show cmt_abc123
     Comment {
         #[command(subcommand)]
         action: CommentAction,
@@ -347,8 +347,8 @@ enum ArtifactAction {
     /// Marks a comment as resolved. Optionally leave a closing reply.
     ///
     /// Examples:
-    ///   hotwired-cli artifact resolve cmt_abc123
-    ///   hotwired-cli artifact resolve cmt_abc123 --reply "Addressed in revision 3"
+    ///   hotwired artifact resolve cmt_abc123
+    ///   hotwired artifact resolve cmt_abc123 --reply "Addressed in revision 3"
     Resolve {
         /// Comment ID
         comment_id: String,
@@ -378,7 +378,7 @@ enum ArtifactAction {
     /// Retrieves the full document content at a specific version.
     ///
     /// Examples:
-    ///   hotwired-cli artifact version docs/PRD.md 2
+    ///   hotwired artifact version docs/PRD.md 2
     Version {
         /// Path to the artifact
         path: PathBuf,
@@ -395,8 +395,8 @@ enum CommentAction {
     /// They will be relocated automatically when the file is edited and synced.
     ///
     /// Examples:
-    ///   hotwired-cli artifact comment add docs/PRD.md "auth flow" "Consider OAuth2"
-    ///   hotwired-cli artifact comment add docs/PRD.md "auth flow" "I disagree" --reply-to cmt_abc123
+    ///   hotwired artifact comment add docs/PRD.md "auth flow" "Consider OAuth2"
+    ///   hotwired artifact comment add docs/PRD.md "auth flow" "I disagree" --reply-to cmt_abc123
     Add {
         /// Path to the artifact
         path: PathBuf,
@@ -415,7 +415,7 @@ enum CommentAction {
     /// No need to specify path or target_text — they are inherited from the parent.
     ///
     /// Examples:
-    ///   hotwired-cli artifact comment reply cmt_abc123 "I agree, will fix"
+    ///   hotwired artifact comment reply cmt_abc123 "I agree, will fix"
     Reply {
         /// Comment ID to reply to
         comment_id: String,
@@ -428,7 +428,7 @@ enum CommentAction {
     /// Retrieves a comment by ID along with any replies in its thread.
     ///
     /// Examples:
-    ///   hotwired-cli artifact comment show cmt_abc123
+    ///   hotwired artifact comment show cmt_abc123
     Show {
         /// Comment ID
         comment_id: String,

@@ -20,7 +20,7 @@
     "workflow"
   ],
   "bin": {
-    "hotwired-cli": "bin/hotwired-cli"
+    "hotwired": "bin/hotwired"
   },
   "files": [
     "bin",

@@ -21,7 +21,7 @@ function getBinaryPath() {
     process.exit(1);
   }
 
-  const binaryName = process.platform === "win32" ? "hotwired-cli.exe" : "hotwired-cli";
+  const binaryName = process.platform === "win32" ? "hotwired.exe" : "hotwired";
 
   // Paths to check, in order of priority
   const paths = [
